@@ -2,6 +2,25 @@
 
 A mini web app that calculates the average bedtime from multiple time entries.
 
+## Quick Start
+
+```bash
+# Run the server
+go run main.go
+
+# Or use make
+make run
+
+# Open in browser
+open http://localhost:8080
+```
+
+The server will start on port 8080 by default. You can change the port:
+
+```bash
+PORT=3000 go run main.go
+```
+
 ## Features
 
 - **Textarea Input**: Enter multiple bedtimes, one per line in HH:MM format (e.g., 23:00)
@@ -85,42 +104,79 @@ When used within WeGuide platform, the app stores:
 - `averageBedtime`: Calculated average time
 - `lastUpdated`: Timestamp of last update
 
+## Running the Server
+
+### Using Go
+
+This app can be served using the included Go server:
+
+```bash
+# Run the server
+go run main.go
+
+# Or build and run
+go build -o bedtime-calculator
+./bedtime-calculator
+```
+
+The server will start on `http://localhost:8080` by default.
+
+**Custom Port:**
+
+```bash
+# Set custom port via environment variable
+PORT=3000 go run main.go
+```
+
+**Endpoints:**
+- `/` - Serves the bedtime calculator app
+- `/health` - Health check endpoint (returns OK)
+
+**Using Make:**
+
+```bash
+make run      # Run the server
+make build    # Build binary
+make clean    # Remove binaries
+make test     # Test endpoints
+make help     # Show all commands
+```
+
+### Using Python (Alternative)
+
+For quick testing without Go:
+
+```bash
+# Python 3
+python3 -m http.server 8080
+
+# Open http://localhost:8080
+```
+
 ## Development
 
 ### File Structure
 
 ```
-apps/bedtime-calculator/
+bedtime-calculator/
 ├── index.html          # Main app file (includes CSS and JS)
+├── main.go            # Go web server
+├── go.mod             # Go module definition
 └── README.md          # This file
-```
-
-### Building
-
-```bash
-# Build this app only
-npm run build bedtime-calculator
-
-# Build all apps
-npm run build:all
 ```
 
 ### Testing
 
 ```bash
-# Start dev server
-npm run dev
+# Start Go server
+go run main.go
 
 # Open in browser
-# http://localhost:3000/bedtime-calculator/
+# http://localhost:8080/
 
 # Test with query params
-# http://localhost:3000/bedtime-calculator/?bedtimes=23:00,22:15,21:00
+# http://localhost:8080/?bedtimes=23:00,22:15,21:00
 ```
-
-### Test Examples
-
-See `/examples/bedtime-calculator-test.html` for interactive test examples.
 
 ## Browser Support
 
