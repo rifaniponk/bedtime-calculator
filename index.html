@@ -284,7 +284,7 @@
                 id="bedtimeInput" 
                 placeholder="23:00&#10;22:15&#10;21:00&#10;23:30"
                 oninput="calculateAverage()"
-            ></textarea>
+            >{{.BedtimesValue}}</textarea>
             <div class="error-message" id="errorMessage"></div>
             <button class="clear-btn" onclick="clearInput()">Clear All</button>
         </div>
@@ -483,26 +483,13 @@
             calculateAverage();
         }
 
-        // Load bedtimes from URL query params
-        function loadFromQueryParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const bedtimesParam = urlParams.get('bedtimes');
-            
-            if (bedtimesParam) {
-                // Split by comma and convert to newline-separated
-                const bedtimes = bedtimesParam.split(',').map(t => t.trim()).filter(t => t !== '');
-                
-                if (bedtimes.length > 0) {
-                    document.getElementById('bedtimeInput').value = bedtimes.join('\n');
-                    calculateAverage();
-                }
-            }
-        }
-
-        // Initialize the app
+        // Initialize the app - calculate on page load if there are pre-filled values
         document.addEventListener('DOMContentLoaded', function() {
-            // Load from query params first
-            loadFromQueryParams();
+            // Calculate average if textarea has pre-filled values from server
+            const input = document.getElementById('bedtimeInput');
+            if (input.value.trim() !== '') {
+                calculateAverage();
+            }
         });
     </script>
 </body>
