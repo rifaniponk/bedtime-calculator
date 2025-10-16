@@ -275,16 +275,6 @@
 </head>
 <body>
     <div class="container">
-        <div style="display: none;">
-            <div class="app-icon">🌙</div>
-            <h1>Bedtime Calculator</h1>
-            <p class="subtitle">Calculate your average bedtime</p>
-            
-            <div class="jwt-display">
-                <div class="jwt-label">JWT Token (Debug)</div>
-                <div class="jwt-token" id="jwtDisplay">No JWT token yet</div>
-            </div>
-        </div>
 
         <div class="input-section">
             <label class="input-label" for="bedtimeInput">Enter Bedtimes</label>
@@ -309,34 +299,9 @@
             </div>
             <div class="stats-info" id="statsInfo">Enter bedtimes above to calculate</div>
         </div>
-
-        <!-- Simple Copyright Footer -->
-        <div class="copyright-footer" style="display: none;">
-            <p>Powered by <a href="#" onclick="openWeGuideWebsite(event)">WeGuide Health</a></p>
-        </div>
     </div>
 
-    <!-- WeGuide Communication Package -->
-    <script src="./weguide-communication/index.umd.js"></script>
-
     <script>
-        // Initialize WeGuide communication
-        let weguide = null;
-
-        // Open WeGuide website using openExternalUrl method
-        function openWeGuideWebsite(event) {
-            event.preventDefault();
-            if (weguide) {
-                weguide.openExternalUrl('https://www.weguide.health/', {
-                    target: '_blank',
-                    reason: 'User clicked WeGuide Health copyright link',
-                    features: 'width=1200,height=800'
-                });
-            } else {
-                // Fallback for standalone mode
-                window.open('https://www.weguide.health/', '_blank');
-            }
-        }
 
         // Parse time string (HH:MM) to minutes from midnight
         function parseTimeToMinutes(timeStr) {
@@ -446,19 +411,7 @@
                 // Enable copy button
                 copyBtn.disabled = false;
 
-                // Save to localStorage if WeGuide is available
-                if (weguide) {
-                    weguide.setLocalData('bedtimes', validTimes);
-                    weguide.setLocalData('averageBedtime', averageTimeStr);
-                    weguide.setLocalData('lastUpdated', Date.now());
 
-                    // Publish event
-                    weguide.publish('average-calculated', {
-                        bedtimeCount: validTimes.length,
-                        averageBedtime: averageTimeStr,
-                        bedtimes: validTimes
-                    });
-                }
             } else {
                 averageTimeEl.textContent = '--:--';
                 statsInfoEl.textContent = 'No valid bedtimes entered';
@@ -491,13 +444,6 @@
                     copyBtn.classList.remove('copied');
                 }, 2000);
 
-                // Track copy event with WeGuide
-                if (weguide) {
-                    weguide.publish('bedtime-copied', {
-                        averageTime: averageTime,
-                        timestamp: Date.now()
-                    });
-                }
             } catch (error) {
                 console.error('Failed to copy:', error);
                 
@@ -535,10 +481,6 @@
         function clearInput() {
             document.getElementById('bedtimeInput').value = '';
             calculateAverage();
-            
-            if (weguide) {
-                weguide.publish('input-cleared', { timestamp: Date.now() });
-            }
         }
 
         // Load bedtimes from URL query params
@@ -553,119 +495,15 @@
                 if (bedtimes.length > 0) {
                     document.getElementById('bedtimeInput').value = bedtimes.join('\n');
                     calculateAverage();
-                    
-                    if (weguide) {
-                        weguide.publish('loaded-from-query', {
-                            bedtimeCount: bedtimes.length,
-                            bedtimes: bedtimes
-                        });
-                    }
                 }
-            }
-        }
-
-        // Update JWT display
-        function updateJWTDisplay() {
-            const jwtElement = document.getElementById('jwtDisplay');
-            
-            if (weguide && weguide.getJWT()) {
-                const jwt = weguide.getJWT();
-                jwtElement.textContent = jwt;
-                jwtElement.style.color = '#28a745';
-            } else {
-                jwtElement.textContent = 'No JWT token yet';
-                jwtElement.style.color = '#666';
             }
         }
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize WeGuide communication if in iframe
-            if (window !== window.parent) {
-                console.log('[BEDTIME CALCULATOR] Initializing WeGuide communication');
-                weguide = WeGuideCommunication.initializeWeGuide({
-                    debug: true,
-                    autoSetup: true
-                });
-
-                // Set up event listeners
-                weguide.on('jwt-token-received', (token) => {
-                    console.log('[BEDTIME CALCULATOR] JWT token received:', token);
-                    updateJWTDisplay();
-                });
-
-                weguide.on('user-info-received', (userInfo) => {
-                    console.log('[BEDTIME CALCULATOR] User info received:', userInfo);
-                    
-                    // Update subtitle with user name
-                    if (weguide.getUserName()) {
-                        document.querySelector('.subtitle').textContent = 
-                            `${weguide.getUserName()}'s bedtime tracker`;
-                    }
-                });
-
-                weguide.on('theme-received', (theme) => {
-                    console.log('[BEDTIME CALCULATOR] Theme received:', theme);
-                    // Apply theme if needed
-                });
-
-                weguide.on('connection-established', () => {
-                    console.log('[BEDTIME CALCULATOR] Connection established with main web');
-                    
-                    // Send current state to main web
-                    const input = document.getElementById('bedtimeInput').value;
-                    const lines = input.split('\n').filter(line => line.trim() !== '');
-                    
-                    weguide.publish('app-loaded', {
-                        bedtimeCount: lines.length,
-                        hasBedtimes: lines.length > 0
-                    });
-                });
-            }
-
             // Load from query params first
             loadFromQueryParams();
-            
-            updateJWTDisplay();
         });
-
-        // Example API call using JWT (when available)
-        async function syncDataWithAPI() {
-            if (!weguide || !weguide.getJWT()) {
-                console.log('No JWT available for API sync');
-                return;
-            }
-
-            const input = document.getElementById('bedtimeInput').value;
-            const lines = input.split('\n').filter(line => line.trim() !== '');
-            const averageTime = document.getElementById('averageTime').textContent;
-
-            try {
-                const response = await weguide.makeAuthenticatedRequest('/api/bedtime', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        bedtimes: lines,
-                        averageBedtime: averageTime,
-                        userId: weguide.getUserId(),
-                        lastUpdated: Date.now()
-                    })
-                });
-
-                if (response.ok) {
-                    console.log('Bedtime data synced with API');
-                    weguide.publish('data-synced', { timestamp: Date.now() });
-                }
-            } catch (error) {
-                console.error('API sync failed:', error);
-            }
-        }
-
-        // Auto-sync every 5 minutes if JWT is available
-        setInterval(() => {
-            if (weguide && weguide.getJWT()) {
-                syncDataWithAPI();
-            }
-        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>
