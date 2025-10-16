@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: bedtime-calculator
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 8080
+    healthCheckPath: /health
+

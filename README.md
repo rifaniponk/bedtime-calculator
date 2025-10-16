@@ -28,9 +28,6 @@ PORT=3000 go run main.go
 - **URL Query Parameters**: Pre-fill bedtimes using URL parameters
 - **Midnight Wraparound Handling**: Correctly handles bedtimes that span midnight (e.g., 23:00 and 01:00)
 - **Input Validation**: Shows error messages for invalid time formats
-- **WeGuide Integration**: Full integration with WeGuide iframe communication system
-- **Local Storage**: Saves data when used within WeGuide platform
-
 ## Usage
 
 ### Basic Usage
@@ -90,19 +87,44 @@ Result: **00:10** ✓
 - **Examples**: `23:00`, `01:30`, `12:45`, `00:00`
 - **Invalid**: `25:00`, `23:60`, `9:00` (should be `09:00`)
 
-### WeGuide Events Published
 
-- `app-loaded`: When the app initializes
-- `average-calculated`: When average is calculated
-- `input-cleared`: When user clears all input
-- `loaded-from-query`: When bedtimes are loaded from URL parameters
+## 🚀 Deployment
 
-### Local Storage
+### Deploy to Render (Free)
 
-When used within WeGuide platform, the app stores:
-- `bedtimes`: Array of valid bedtime strings
-- `averageBedtime`: Calculated average time
-- `lastUpdated`: Timestamp of last update
+This app is configured for easy deployment to [Render](https://render.com):
+
+1. **Push your code to GitHub**
+   ```bash
+   git add .
+   git commit -m "feat: add Render deployment config"
+   git push origin main
+   ```
+
+2. **Sign up at [render.com](https://render.com)** (free, no credit card required)
+
+3. **Create a new Web Service**
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Render will auto-detect the `render.yaml` file
+
+4. **Deploy!**
+   - Click "Create Web Service"
+   - Your app will be live at `https://your-app-name.onrender.com`
+
+**Note:** Free tier apps sleep after 15 minutes of inactivity. First request after sleep takes ~30 seconds.
+
+### Alternative: Manual Docker Deployment
+
+```bash
+# Build the Docker image
+docker build -t bedtime-calculator .
+
+# Run locally
+docker run -p 8080:8080 bedtime-calculator
+
+# Open http://localhost:8080
+```
 
 ## Running the Server
 
@@ -162,6 +184,11 @@ bedtime-calculator/
 ├── index.html          # Main app file (includes CSS and JS)
 ├── main.go            # Go web server
 ├── go.mod             # Go module definition
+├── Dockerfile         # Docker configuration
+├── render.yaml        # Render deployment config
+├── .dockerignore      # Docker ignore file
+├── .gitignore         # Git ignore file
+├── Makefile           # Build commands
 └── README.md          # This file
 ```
 
@@ -184,7 +211,4 @@ go run main.go
 - Mobile responsive design
 - Works standalone or embedded in iframe
 
-## Credits
-
-Built with ❤️ for WeGuide Health
 
