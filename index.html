@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedtime Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: transparent;
+            padding: 20px;
+            color: #000;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .app-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #000;
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        .jwt-display {
+            margin-bottom: 20px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f9f9f9;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+
+        .jwt-label {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .jwt-token {
+            color: #000;
+            font-size: 0.7rem;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-label {
+            color: #000;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-hint {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .bedtime-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 2px solid #000;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+        }
+
+        .bedtime-textarea:focus {
+            outline: none;
+            border-color: #333;
+        }
+
+        .bedtime-textarea::placeholder {
+            color: #999;
+        }
+
+        .result-section {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .average-time {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #000;
+            font-family: 'Courier New', monospace;
+        }
+
+        .time-with-copy {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .copy-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn:active {
+            background: #555;
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .copy-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-info {
+            margin-top: 8px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .clear-btn {
+            background: #666;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            background: #555;
+        }
+
+        .clear-btn:active {
+            background: #444;
+        }
+
+        .copyright-footer {
+            margin-top: 25px;
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .copyright-footer p {
+            color: #666;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .copyright-footer a {
+            color: #000;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .copyright-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+            
+            .result-section {
+                padding: 14px;
+            }
+            
+            .average-time {
+                font-size: 1.6rem;
+            }
+            
+            .time-with-copy {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .copy-btn {
+                width: 100%;
+                max-width: 180px;
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: none;">
+            <div class="app-icon">🌙</div>
+            <h1>Bedtime Calculator</h1>
+            <p class="subtitle">Calculate your average bedtime</p>
+            
+            <div class="jwt-display">
+                <div class="jwt-label">JWT Token (Debug)</div>
+                <div class="jwt-token" id="jwtDisplay">No JWT token yet</div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <label class="input-label" for="bedtimeInput">Enter Bedtimes</label>
+            <span class="input-hint">Enter one time per line (HH:MM format, e.g., 23:00)</span>
+            <textarea 
+                class="bedtime-textarea" 
+                id="bedtimeInput" 
+                placeholder="23:00&#10;22:15&#10;21:00&#10;23:30"
+                oninput="calculateAverage()"
+            ></textarea>
+            <div class="error-message" id="errorMessage"></div>
+            <button class="clear-btn" onclick="clearInput()">Clear All</button>
+        </div>
+
+        <div class="result-section">
+            <div class="result-label">Average Bedtime</div>
+            <div class="time-with-copy">
+                <div class="average-time" id="averageTime">--:--</div>
+                <button class="copy-btn" id="copyBtn" onclick="copyAverageTime()" disabled>
+                    📋 Copy
+                </button>
+            </div>
+            <div class="stats-info" id="statsInfo">Enter bedtimes above to calculate</div>
+        </div>
+
+        <!-- Simple Copyright Footer -->
+        <div class="copyright-footer" style="display: none;">
+            <p>Powered by <a href="#" onclick="openWeGuideWebsite(event)">WeGuide Health</a></p>
+        </div>
+    </div>
+
+    <!-- WeGuide Communication Package -->
+    <script src="./weguide-communication/index.umd.js"></script>
+
+    <script>
+        // Initialize WeGuide communication
+        let weguide = null;
+
+        // Open WeGuide website using openExternalUrl method
+        function openWeGuideWebsite(event) {
+            event.preventDefault();
+            if (weguide) {
+                weguide.openExternalUrl('https://www.weguide.health/', {
+                    target: '_blank',
+                    reason: 'User clicked WeGuide Health copyright link',
+                    features: 'width=1200,height=800'
+                });
+            } else {
+                // Fallback for standalone mode
+                window.open('https://www.weguide.health/', '_blank');
+            }
+        }
+
+        // Parse time string (HH:MM) to minutes from midnight
+        function parseTimeToMinutes(timeStr) {
+            const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})$/);
+            if (!match) return null;
+            
+            const hours = parseInt(match[1], 10);
+            const minutes = parseInt(match[2], 10);
+            
+            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+                return null;
+            }
+            
+            return hours * 60 + minutes;
+        }
+
+        // Convert minutes from midnight to time string (HH:MM)
+        function minutesToTimeString(minutes) {
+            // Handle negative and overflow values
+            minutes = ((minutes % 1440) + 1440) % 1440;
+            
+            const hours = Math.floor(minutes / 60);
+            const mins = Math.round(minutes % 60);
+            
+            return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        }
+
+        // Calculate average of times, handling midnight wraparound
+        function calculateAverageTime(times) {
+            if (times.length === 0) return null;
+
+            // Convert all times to minutes from midnight
+            const minutesArray = times.map(parseTimeToMinutes).filter(m => m !== null);
+            
+            if (minutesArray.length === 0) return null;
+
+            // For bedtimes, assume times after noon (12:00) are previous day
+            // and times before noon are next day (past midnight)
+            // This helps handle cases like 23:00, 00:30, 01:00 correctly
+            const adjustedMinutes = minutesArray.map(m => {
+                // If time is between 00:00 and 12:00 (0-720 minutes), add 24 hours (1440 minutes)
+                // This treats early morning times as "later" than evening times
+                if (m < 720) {
+                    return m + 1440;
+                }
+                return m;
+            });
+
+            // Calculate average
+            const sum = adjustedMinutes.reduce((acc, val) => acc + val, 0);
+            const average = sum / adjustedMinutes.length;
+
+            // Convert back to 24-hour format
+            return average % 1440;
+        }
+
+        // Calculate and display average
+        function calculateAverage() {
+            const input = document.getElementById('bedtimeInput');
+            const text = input.value;
+            const errorMessage = document.getElementById('errorMessage');
+            const averageTimeEl = document.getElementById('averageTime');
+            const statsInfoEl = document.getElementById('statsInfo');
+            const copyBtn = document.getElementById('copyBtn');
+
+            // Clear previous error
+            errorMessage.classList.remove('show');
+            errorMessage.textContent = '';
+
+            // Split by newlines and filter empty lines
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+
+            if (lines.length === 0) {
+                averageTimeEl.textContent = '--:--';
+                statsInfoEl.textContent = 'Enter bedtimes above to calculate';
+                copyBtn.disabled = true;
+                return;
+            }
+
+            // Parse all times
+            const validTimes = [];
+            const invalidLines = [];
+
+            lines.forEach((line, index) => {
+                const minutes = parseTimeToMinutes(line);
+                if (minutes !== null) {
+                    validTimes.push(line.trim());
+                } else {
+                    invalidLines.push(index + 1);
+                }
+            });
+
+            // Show error if there are invalid lines
+            if (invalidLines.length > 0) {
+                errorMessage.textContent = `Invalid time format on line(s): ${invalidLines.join(', ')}. Use HH:MM format (e.g., 23:00)`;
+                errorMessage.classList.add('show');
+            }
+
+            // Calculate average if there are valid times
+            if (validTimes.length > 0) {
+                const averageMinutes = calculateAverageTime(validTimes);
+                const averageTimeStr = minutesToTimeString(averageMinutes);
+                
+                averageTimeEl.textContent = averageTimeStr;
+                statsInfoEl.textContent = `Based on ${validTimes.length} bedtime${validTimes.length > 1 ? 's' : ''}`;
+                
+                // Enable copy button
+                copyBtn.disabled = false;
+
+                // Save to localStorage if WeGuide is available
+                if (weguide) {
+                    weguide.setLocalData('bedtimes', validTimes);
+                    weguide.setLocalData('averageBedtime', averageTimeStr);
+                    weguide.setLocalData('lastUpdated', Date.now());
+
+                    // Publish event
+                    weguide.publish('average-calculated', {
+                        bedtimeCount: validTimes.length,
+                        averageBedtime: averageTimeStr,
+                        bedtimes: validTimes
+                    });
+                }
+            } else {
+                averageTimeEl.textContent = '--:--';
+                statsInfoEl.textContent = 'No valid bedtimes entered';
+                copyBtn.disabled = true;
+            }
+        }
+
+        // Copy average time to clipboard
+        async function copyAverageTime() {
+            const averageTime = document.getElementById('averageTime').textContent;
+            const copyBtn = document.getElementById('copyBtn');
+            
+            // Don't copy if no valid time
+            if (averageTime === '--:--') {
+                return;
+            }
+
+            try {
+                // Use modern Clipboard API
+                await navigator.clipboard.writeText(averageTime);
+                
+                // Show success feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✓ Copied!';
+                copyBtn.classList.add('copied');
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+
+                // Track copy event with WeGuide
+                if (weguide) {
+                    weguide.publish('bedtime-copied', {
+                        averageTime: averageTime,
+                        timestamp: Date.now()
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to copy:', error);
+                
+                // Fallback for older browsers
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = averageTime;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    // Show success feedback
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '✓ Copied!';
+                    copyBtn.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                } catch (fallbackError) {
+                    console.error('Fallback copy also failed:', fallbackError);
+                    copyBtn.innerHTML = '✗ Failed';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '📋 Copy';
+                    }, 2000);
+                }
+            }
+        }
+
+        // Clear input
+        function clearInput() {
+            document.getElementById('bedtimeInput').value = '';
+            calculateAverage();
+            
+            if (weguide) {
+                weguide.publish('input-cleared', { timestamp: Date.now() });
+            }
+        }
+
+        // Load bedtimes from URL query params
+        function loadFromQueryParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bedtimesParam = urlParams.get('bedtimes');
+            
+            if (bedtimesParam) {
+                // Split by comma and convert to newline-separated
+                const bedtimes = bedtimesParam.split(',').map(t => t.trim()).filter(t => t !== '');
+                
+                if (bedtimes.length > 0) {
+                    document.getElementById('bedtimeInput').value = bedtimes.join('\n');
+                    calculateAverage();
+                    
+                    if (weguide) {
+                        weguide.publish('loaded-from-query', {
+                            bedtimeCount: bedtimes.length,
+                            bedtimes: bedtimes
+                        });
+                    }
+                }
+            }
+        }
+
+        // Update JWT display
+        function updateJWTDisplay() {
+            const jwtElement = document.getElementById('jwtDisplay');
+            
+            if (weguide && weguide.getJWT()) {
+                const jwt = weguide.getJWT();
+                jwtElement.textContent = jwt;
+                jwtElement.style.color = '#28a745';
+            } else {
+                jwtElement.textContent = 'No JWT token yet';
+                jwtElement.style.color = '#666';
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize WeGuide communication if in iframe
+            if (window !== window.parent) {
+                console.log('[BEDTIME CALCULATOR] Initializing WeGuide communication');
+                weguide = WeGuideCommunication.initializeWeGuide({
+                    debug: true,
+                    autoSetup: true
+                });
+
+                // Set up event listeners
+                weguide.on('jwt-token-received', (token) => {
+                    console.log('[BEDTIME CALCULATOR] JWT token received:', token);
+                    updateJWTDisplay();
+                });
+
+                weguide.on('user-info-received', (userInfo) => {
+                    console.log('[BEDTIME CALCULATOR] User info received:', userInfo);
+                    
+                    // Update subtitle with user name
+                    if (weguide.getUserName()) {
+                        document.querySelector('.subtitle').textContent = 
+                            `${weguide.getUserName()}'s bedtime tracker`;
+                    }
+                });
+
+                weguide.on('theme-received', (theme) => {
+                    console.log('[BEDTIME CALCULATOR] Theme received:', theme);
+                    // Apply theme if needed
+                });
+
+                weguide.on('connection-established', () => {
+                    console.log('[BEDTIME CALCULATOR] Connection established with main web');
+                    
+                    // Send current state to main web
+                    const input = document.getElementById('bedtimeInput').value;
+                    const lines = input.split('\n').filter(line => line.trim() !== '');
+                    
+                    weguide.publish('app-loaded', {
+                        bedtimeCount: lines.length,
+                        hasBedtimes: lines.length > 0
+                    });
+                });
+            }
+
+            // Load from query params first
+            loadFromQueryParams();
+            
+            updateJWTDisplay();
+        });
+
+        // Example API call using JWT (when available)
+        async function syncDataWithAPI() {
+            if (!weguide || !weguide.getJWT()) {
+                console.log('No JWT available for API sync');
+                return;
+            }
+
+            const input = document.getElementById('bedtimeInput').value;
+            const lines = input.split('\n').filter(line => line.trim() !== '');
+            const averageTime = document.getElementById('averageTime').textContent;
+
+            try {
+                const response = await weguide.makeAuthenticatedRequest('/api/bedtime', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        bedtimes: lines,
+                        averageBedtime: averageTime,
+                        userId: weguide.getUserId(),
+                        lastUpdated: Date.now()
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Bedtime data synced with API');
+                    weguide.publish('data-synced', { timestamp: Date.now() });
+                }
+            } catch (error) {
+                console.error('API sync failed:', error);
+            }
+        }
+
+        // Auto-sync every 5 minutes if JWT is available
+        setInterval(() => {
+            if (weguide && weguide.getJWT()) {
+                syncDataWithAPI();
+            }
+        }, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
+
